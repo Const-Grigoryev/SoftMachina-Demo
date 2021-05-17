@@ -5,6 +5,4 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 @ComponentScan("dev.aspid812.softmachdemo")
-class GreetingRouter {
-
-}
+class SoftMachinaDemoConfig
