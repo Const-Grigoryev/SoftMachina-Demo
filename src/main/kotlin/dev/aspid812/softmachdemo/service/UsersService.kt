@@ -12,6 +12,10 @@ import java.util.concurrent.ConcurrentMap
 class UsersService {
 	private val userByName: ConcurrentMap<String, User> = ConcurrentHashMap()
 
+	fun clear() {
+		userByName.clear()
+	}
+
 	fun listUsers(): Sequence<User> {
 		return userByName.asSequence()
 			.map { entry -> entry.value }
