@@ -26,4 +26,12 @@ class ConfigService(
 
 	var regexUsername = REGEX_USERNAME
 	var regexPassword = REGEX_PASSWORD
+
+	fun reset() {
+		delayGetUsers = DELAY_GET_USERS
+		delayPostUser = DELAY_POST_USER
+		delayPostUpdatePassword = DELAY_POST_UPDATE_PASSWORD
+		regexUsername = REGEX_USERNAME
+		regexPassword = REGEX_PASSWORD
+	}
 }

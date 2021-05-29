@@ -9,10 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired
 
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.AfterEach
 import io.restassured.http.*
 import io.restassured.module.kotlin.extensions.*
 import org.hamcrest.Matchers.*
-import org.junit.jupiter.api.AfterEach
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
