@@ -12,27 +12,39 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toFlux
 import java.time.Duration
+import java.util.concurrent.ConcurrentHashMap
 import java.util.regex.PatternSyntaxException
+
 
 @RestController
 class UsersController(
 	private val service: UsersService,
 	private val config: ConfigService
 ) {
+	private val regexCache = ConcurrentHashMap<String, Regex?>()
+
+	private fun regexForPattern(pattern: String): Regex {
+		val regex = regexCache.computeIfAbsent(pattern) {
+			try {
+				Regex(it)
+			}
+			catch (ex: PatternSyntaxException) {
+				null
+			}
+		}
+
+		return regex ?: throw RegexSyntaxException(pattern)
+	}
+
 	@GetMapping("/users")
 	fun getUsers(
 		@RequestParam(required=false) userNameMask: String?
 	): Flux<User> {
-		val usernameRegex: Regex?
-		try {
-			usernameRegex = userNameMask?.let { Regex(it) }
+		var users = service.listUsers()
+		if (userNameMask != null) {
+			val regex = regexForPattern(userNameMask)
+			users = users.filter { user -> regex.matches(user.username) }
 		}
-		catch (ex: PatternSyntaxException) {
-			throw RegexSyntaxException(ex)
-		}
-
-		val users = service.listUsers()
-			.filter { user -> usernameRegex?.matches(user.username) ?: true }
 
 		val delay = Duration.ofMillis(config.delayGetUsers)
 		return users.toFlux().delaySubscription(delay)

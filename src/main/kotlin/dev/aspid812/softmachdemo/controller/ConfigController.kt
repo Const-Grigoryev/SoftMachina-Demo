@@ -32,12 +32,15 @@ class ConfigController(
 		@RequestParam subject: String,
 		@RequestParam(required=false) pattern: String?
 	) {
-		val regex: Regex?
-		try {
-			regex = pattern?.let { Regex(it) }
-		}
-		catch (ex: PatternSyntaxException) {
-			throw RegexSyntaxException(ex)
+		// Не кэшируем, потому что конфигурационные методы by design вызываются слишком редко,
+		// чтобы это принесло хоть какую-то пользу.
+		val regex = pattern?.let {
+			try {
+				Regex(it)
+			}
+			catch (ex: PatternSyntaxException) {
+				throw RegexSyntaxException(it)
+			}
 		}
 
 		when (subject) {
