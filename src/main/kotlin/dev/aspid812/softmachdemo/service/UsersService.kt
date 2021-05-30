@@ -27,12 +27,13 @@ class UsersService {
 	}
 
 	@Throws(UserAlreadyExistsException::class)
-	fun addUser(username: String, password: String) {
+	fun addUser(username: String, password: String): User {
 		val newUser = User(username, password)
 		val oldUser = userByName.putIfAbsent(username, newUser)
 		if (oldUser != null) {
 			throw UserAlreadyExistsException(username)
 		}
+		return newUser
 	}
 
 	@Throws(UserNotFoundException::class, WrongPasswordException::class)
