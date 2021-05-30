@@ -15,6 +15,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import io.restassured.http.*
 import io.restassured.module.kotlin.extensions.*
+import org.hamcrest.Matchers.*
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -84,6 +85,7 @@ class PostUpdatePasswordTest {
 			post(methodPath)
 		} Then {
 			statusCode(500)
+			body("message", not(blankOrNullString()))
 		}
 	}
 
@@ -105,6 +107,7 @@ class PostUpdatePasswordTest {
 			post(methodPath)
 		} Then {
 			statusCode(500)
+			body("message", not(blankOrNullString()))
 		}
 	}
 
@@ -130,6 +133,7 @@ class PostUpdatePasswordTest {
 			post(methodPath)
 		} Then {
 			statusCode(500)
+			body("message", not(blankOrNullString()))
 		}
 	}
 }

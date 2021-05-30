@@ -14,6 +14,18 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import io.restassured.http.*
 import io.restassured.module.kotlin.extensions.*
+import org.hamcrest.Matchers.*
+import org.hamcrest.BaseMatcher
+import org.hamcrest.Description
+
+
+private class WatchMatcher<T>: BaseMatcher<T>() {
+	override fun describeTo(description: Description?) {}
+
+	override fun matches(actual: Any?): Boolean {
+		return true
+	}
+}
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class PostUserTest {
@@ -72,6 +84,7 @@ class PostUserTest {
 			post(methodPath)
 		} Then {
 			statusCode(500)
+			body("message", not(blankOrNullString()))
 		}
 	}
 
@@ -91,6 +104,7 @@ class PostUserTest {
 			post(methodPath)
 		} Then {
 			statusCode(500)
+			body("message", not(blankOrNullString()))
 		}
 	}
 
@@ -110,6 +124,7 @@ class PostUserTest {
 			post(methodPath)
 		} Then {
 			statusCode(500)
+			body("message", not(blankOrNullString()))
 		}
 	}
 }
