@@ -19,9 +19,9 @@ class ConfigController(
 		}
 
 		when (method) {
-			"getUser" -> service.delayGetUsers = value
+			"getUsers" -> service.delayGetUsers = value
 			"postUser" -> service.delayPostUser = value
-			"postUpdate" -> service.delayPostUpdatePassword = value
+			"postUpdatePassword" -> service.delayPostUpdatePassword = value
 			else -> throw IllegalArgumentException("Unsupported method name: '$method'")
 		}
 	}
