@@ -1,7 +1,7 @@
 package dev.aspid812.softmachdemo.service
 
 import dev.aspid812.softmachdemo.exception.UserAlreadyExistsException
-import dev.aspid812.softmachdemo.service.model.User
+import dev.aspid812.softmachdemo.model.User
 import dev.aspid812.softmachdemo.exception.UserNotFoundException
 import dev.aspid812.softmachdemo.exception.WrongPasswordException
 import org.springframework.stereotype.Service

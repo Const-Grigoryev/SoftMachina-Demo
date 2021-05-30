@@ -2,7 +2,7 @@ package dev.aspid812.softmachdemo.controller
 
 import dev.aspid812.softmachdemo.exception.InvalidPasswordException
 import dev.aspid812.softmachdemo.exception.InvalidUsernameException
-import dev.aspid812.softmachdemo.service.model.User
+import dev.aspid812.softmachdemo.model.User
 import dev.aspid812.softmachdemo.dto.UpdatePasswordDto
 import dev.aspid812.softmachdemo.service.ConfigService
 import dev.aspid812.softmachdemo.service.UsersService

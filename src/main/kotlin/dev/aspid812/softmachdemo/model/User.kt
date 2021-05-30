@@ -1,4 +1,4 @@
-package dev.aspid812.softmachdemo.service.model
+package dev.aspid812.softmachdemo.model
 
 data class User(
 	val username: String,

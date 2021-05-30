@@ -3,7 +3,7 @@ package dev.aspid812.softmachdemo.controller
 import dev.aspid812.softmachdemo.dto.UpdatePasswordDto
 import dev.aspid812.softmachdemo.service.ConfigService
 import dev.aspid812.softmachdemo.service.UsersService
-import dev.aspid812.softmachdemo.service.model.User
+import dev.aspid812.softmachdemo.model.User
 
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
