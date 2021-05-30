@@ -1,9 +1,9 @@
 package dev.aspid812.softmachdemo.service
 
-import dev.aspid812.softmachdemo.service.exception.UserAlreadyExistsException
+import dev.aspid812.softmachdemo.exception.UserAlreadyExistsException
 import dev.aspid812.softmachdemo.service.model.User
-import dev.aspid812.softmachdemo.service.exception.UserNotFoundException
-import dev.aspid812.softmachdemo.service.exception.WrongPasswordException
+import dev.aspid812.softmachdemo.exception.UserNotFoundException
+import dev.aspid812.softmachdemo.exception.WrongPasswordException
 import org.springframework.stereotype.Service
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap

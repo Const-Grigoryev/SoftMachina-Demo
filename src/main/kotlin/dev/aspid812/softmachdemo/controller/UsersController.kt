@@ -1,21 +1,35 @@
 package dev.aspid812.softmachdemo.controller
 
-import dev.aspid812.softmachdemo.controller.exception.InvalidPasswordException
-import dev.aspid812.softmachdemo.controller.exception.InvalidUsernameException
+import dev.aspid812.softmachdemo.exception.InvalidPasswordException
+import dev.aspid812.softmachdemo.exception.InvalidUsernameException
 import dev.aspid812.softmachdemo.service.model.User
 import dev.aspid812.softmachdemo.dto.UpdatePasswordDto
 import dev.aspid812.softmachdemo.service.ConfigService
 import dev.aspid812.softmachdemo.service.UsersService
-import dev.aspid812.softmachdemo.service.exception.RegexSyntaxException
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.util.ConcurrentLruCache
 import org.springframework.web.bind.annotation.*
-import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toFlux
 import java.time.Duration
-import java.util.concurrent.ConcurrentHashMap
 import java.util.regex.PatternSyntaxException
+
+
+private sealed class CachedPattern {
+	abstract fun toRegex(): Regex
+
+	class Valid(
+		val regex: Regex
+	): CachedPattern() {
+		override fun toRegex() = regex
+	}
+
+	class Invalid(
+		val exception: PatternSyntaxException
+	): CachedPattern() {
+		override fun toRegex() = throw exception
+	}
+}
 
 
 @RestController
@@ -25,34 +39,35 @@ class UsersController(
 
 	@Value("\${regexCacheSize}")
 	private val regexCacheSize: Int
-) {
-	private val regexCache = ConcurrentLruCache<String, Regex?>(regexCacheSize) {
+) : SoftMachinaDemoController() {
+	private val regexCache = ConcurrentLruCache<String, CachedPattern>(regexCacheSize) {
 		try {
-			Regex(it)
+			val regex = Regex(it)
+			CachedPattern.Valid(regex)
 		}
 		catch (ex: PatternSyntaxException) {
-			null
+			CachedPattern.Invalid(ex)
 		}
 	}
 
 	@GetMapping("/users")
 	fun getUsers(
 		@RequestParam(required=false) userNameMask: String?
-	): Flux<User> {
+	) = handleFlux {
 		var users = service.listUsers()
 		if (userNameMask != null) {
-			val regex = regexCache.get(userNameMask)
+			val regex = regexCache.get(userNameMask).toRegex()
 			users = users.filter { user -> regex.matches(user.username) }
 		}
 
 		val delay = Duration.ofMillis(config.delayGetUsers)
-		return users.toFlux().delaySubscription(delay)
+		users.toFlux().delaySubscription(delay)
 	}
 
 	@PostMapping("/user")
 	fun postUser(
 		@RequestBody body: User
-	): Mono<Nothing> {
+	) = handleMono {
 		if (config.regexUsername?.matches(body.username) == false) {
 			throw InvalidUsernameException(body.username)
 		}
@@ -64,13 +79,13 @@ class UsersController(
 		service.addUser(body.username, body.password)
 
 		val delay = Duration.ofMillis(config.delayPostUser)
-		return Mono.empty<Nothing>().delaySubscription(delay)
+		Mono.empty<Nothing>().delaySubscription(delay)
 	}
 
 	@PostMapping("/updatePassword")
 	fun postUpdatePassword(
 		@RequestBody body: UpdatePasswordDto
-	): Mono<Nothing> {
+	) = handleMono {
 		if (config.regexPassword?.matches(body.password) == false) {
 			throw InvalidPasswordException(body.password)
 		}
@@ -78,6 +93,6 @@ class UsersController(
 		service.updateUserPassword(body.username, body.oldpassword, body.password)
 
 		val delay = Duration.ofMillis(config.delayPostUpdatePassword)
-		return Mono.empty<Nothing>().delaySubscription(delay)
+		Mono.empty<Nothing>().delaySubscription(delay)
 	}
 }

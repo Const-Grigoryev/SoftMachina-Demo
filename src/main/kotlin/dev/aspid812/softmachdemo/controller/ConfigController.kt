@@ -1,7 +1,6 @@
 package dev.aspid812.softmachdemo.controller
 
 import dev.aspid812.softmachdemo.service.ConfigService
-import dev.aspid812.softmachdemo.service.exception.RegexSyntaxException
 import org.springframework.web.bind.annotation.*
 import java.util.regex.PatternSyntaxException
 
@@ -34,14 +33,7 @@ class ConfigController(
 	) {
 		// Не кэшируем, потому что конфигурационные методы by design вызываются слишком редко,
 		// чтобы это принесло хоть какую-то пользу.
-		val regex = pattern?.let {
-			try {
-				Regex(it)
-			}
-			catch (ex: PatternSyntaxException) {
-				throw RegexSyntaxException(it)
-			}
-		}
+		val regex = pattern?.let { Regex(it) }
 
 		when (subject) {
 			"username" -> service.regexUsername = regex
