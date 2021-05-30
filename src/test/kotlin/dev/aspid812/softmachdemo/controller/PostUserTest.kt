@@ -52,7 +52,7 @@ class PostUserTest {
 		} Then {
 			statusCode(200)
 		} Extract {
-			usersService.findUser("Alice")
+			usersService.findUser(expectedUser.username)
 		}
 
 		assertEquals(expectedUser, actualUser)
@@ -62,7 +62,6 @@ class PostUserTest {
 	fun `Post existent user`() {
 		val existentUser = with(usersService) {
 			addUser("Alice", "12345")
-			findUser("Alice")
 		}
 
 		Given {
@@ -100,7 +99,7 @@ class PostUserTest {
 		val illegalUser = User("Bob", "")
 
 		with(configService) {
-			regexPassword = Regex(".{6,}")
+			regexPassword = Regex(".*\\d.*")
 		}
 
 		Given {

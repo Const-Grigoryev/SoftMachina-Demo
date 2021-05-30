@@ -14,6 +14,8 @@ import io.restassured.http.*
 import io.restassured.module.kotlin.extensions.*
 import org.hamcrest.Matchers.*
 
+private fun <T> containsAll(items: Array<T>) = containsInAnyOrder(*items)
+private inline fun <reified T> containsAll(items: Collection<T>) = containsAll(items.toTypedArray())
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class GetUsersTest {
@@ -50,7 +52,7 @@ class GetUsersTest {
 
 	@Test
 	fun `Non-empty user list`() {
-		with(usersService) {
+		val user = with(usersService) {
 			addUser("Alice", "12345")
 		}
 
@@ -62,8 +64,8 @@ class GetUsersTest {
 			statusCode(200)
 			contentType(ContentType.JSON)
 			body("", hasSize<User>(1))
-			body("username", contains("Alice"))
-			body("password", contains("12345"))
+			body("username", contains(user.username))
+			body("password", contains(user.password))
 		}
 	}
 
@@ -89,10 +91,11 @@ class GetUsersTest {
 
 	@Test
 	fun `Username filtering - one match`() {
-		with(usersService) {
-			addUser("Alice", "12345")
-			addUser("Bob", "")
-			addUser("Charlie", "BtXBMaaZ")
+		val expectedUser = with(usersService) {
+			val alice = addUser("Alice", "12345")
+			val bob = addUser("Bob", "")
+			val charlie = addUser("Charlie", "BtXBMaaZ")
+			bob
 		}
 
 		Given {
@@ -104,17 +107,18 @@ class GetUsersTest {
 			statusCode(200)
 			contentType(ContentType.JSON)
 			body("", hasSize<User>(1))
-			body("username", contains("Bob"))
-			body("password", contains(""))
+			body("username", contains(expectedUser.username))
+			body("password", contains(expectedUser.password))
 		}
 	}
 
 	@Test
 	fun `Username filtering - multiple matches`() {
-		with(usersService) {
-			addUser("Alice", "12345")
-			addUser("Bob", "")
-			addUser("Charlie", "BtXBMaaZ")
+		val expectedUsers = with(usersService) {
+			val alice = addUser("Alice", "12345")
+			val bob = addUser("Bob", "")
+			val charlie = addUser("Charlie", "BtXBMaaZ")
+			arrayOf(alice, charlie)
 		}
 
 		Given {
@@ -126,7 +130,7 @@ class GetUsersTest {
 			statusCode(200)
 			contentType(ContentType.JSON)
 			body("", hasSize<User>(2))
-			body("username", contains("Alice", "Charlie"))
+			body("username", containsAll(expectedUsers.map(User::username)))
 		}
 	}
 
