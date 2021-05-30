@@ -7,6 +7,8 @@ import dev.aspid812.softmachdemo.dto.UpdatePasswordDto
 import dev.aspid812.softmachdemo.service.ConfigService
 import dev.aspid812.softmachdemo.service.UsersService
 import dev.aspid812.softmachdemo.service.exception.RegexSyntaxException
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.util.ConcurrentLruCache
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -19,21 +21,18 @@ import java.util.regex.PatternSyntaxException
 @RestController
 class UsersController(
 	private val service: UsersService,
-	private val config: ConfigService
+	private val config: ConfigService,
+
+	@Value("\${regexCacheSize}")
+	private val regexCacheSize: Int
 ) {
-	private val regexCache = ConcurrentHashMap<String, Regex?>()
-
-	private fun regexForPattern(pattern: String): Regex {
-		val regex = regexCache.computeIfAbsent(pattern) {
-			try {
-				Regex(it)
-			}
-			catch (ex: PatternSyntaxException) {
-				null
-			}
+	private val regexCache = ConcurrentLruCache<String, Regex?>(regexCacheSize) {
+		try {
+			Regex(it)
 		}
-
-		return regex ?: throw RegexSyntaxException(pattern)
+		catch (ex: PatternSyntaxException) {
+			null
+		}
 	}
 
 	@GetMapping("/users")
@@ -42,7 +41,7 @@ class UsersController(
 	): Flux<User> {
 		var users = service.listUsers()
 		if (userNameMask != null) {
-			val regex = regexForPattern(userNameMask)
+			val regex = regexCache.get(userNameMask)
 			users = users.filter { user -> regex.matches(user.username) }
 		}
 
